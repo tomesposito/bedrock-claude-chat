@@ -35,6 +35,10 @@ export interface FrontendProps {
    * Required if alternateDomainName is provided
    */
   readonly hostedZoneId?: string;
+  /**
+   * Requires Pendo account for usage tracking
+   */
+  readonly pendoApiKey?: string;
 }
 
 export class Frontend extends Construct {
@@ -44,11 +48,14 @@ export class Frontend extends Construct {
   private readonly hostedZone?: route53.IHostedZone;
   /** Alternate domain name for the CloudFront distribution */
   private readonly alternateDomainName?: string;
+  private readonly pendoApiKey?: string;
+
 
   constructor(scope: Construct, id: string, props: FrontendProps) {
     super(scope, id);
 
     this.alternateDomainName = props.alternateDomainName;
+    this.pendoApiKey = props.pendoApiKey;
 
     const assetBucket = new Bucket(this, "AssetBucket", {
       encryption: BucketEncryption.S3_MANAGED,
@@ -186,7 +193,7 @@ export class Frontend extends Construct {
     const region = Stack.of(auth.userPool).region;
     const cognitoDomain = `${userPoolDomainPrefix}.auth.${region}.amazoncognito.com/`;
     const buildEnvProps = (() => {
-      const defaultProps = {
+      const defaultProps: { [key: string]: string } = {
         VITE_APP_API_ENDPOINT: backendApiEndpoint,
         VITE_APP_WS_ENDPOINT: webSocketApiEndpoint,
         VITE_APP_USER_POOL_ID: auth.userPool.userPoolId,
@@ -195,6 +202,11 @@ export class Frontend extends Construct {
         VITE_APP_REGION: region,
         VITE_APP_USE_STREAMING: "true",
       };
+
+      // If a Pendo API key was provided, add it to the build environment
+      if (this.pendoApiKey) {
+        defaultProps.VITE_APP_PENDO_KEY = this.pendoApiKey;
+      }
 
       if (!idp.isExist()) return defaultProps;
 

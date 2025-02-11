@@ -75,6 +75,7 @@ const bedrockRegionResources = new BedrockRegionResourcesStack(
 
 const ALTERNATE_DOMAIN_NAME: string = app.node.tryGetContext("alternateDomainName");
 const HOSTED_ZONE_ID: string = app.node.tryGetContext("hostedZoneId");
+const PENDO_API_KEY: string = app.node.tryGetContext("pendoApiKey");
 
 const chat = new BedrockChatStack(app, `BedrockChatStack`, {
   env: {
@@ -101,6 +102,7 @@ const chat = new BedrockChatStack(app, `BedrockChatStack`, {
   enableLambdaSnapStart: ENABLE_LAMBDA_SNAPSTART,
   alternateDomainName: ALTERNATE_DOMAIN_NAME,
   hostedZoneId: HOSTED_ZONE_ID,
+  pendoApiKey: PENDO_API_KEY,
 });
 chat.addDependency(waf);
 chat.addDependency(bedrockRegionResources);

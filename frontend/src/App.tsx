@@ -21,8 +21,49 @@ const socialProviderFromEnv = import.meta.env.VITE_APP_SOCIAL_PROVIDERS?.split(
 const MISTRAL_ENABLED: boolean =
   import.meta.env.VITE_APP_ENABLE_MISTRAL === 'true';
 
-const App: React.FC = () => {
+  const PendoInitializer: React.FC<{ username: string }> = ({ username }) => {
+    useEffect(() => {
+      // Check if pendo is already loaded
+      if (typeof window.pendo !== 'undefined') {
+        window.pendo.initialize({
+          visitor: {
+            id: username,
+            email: username, // Replace if you have a separate email attribute
+          },
+        });
+      }
+    }, [username]);
+  
+    return null; // This component doesn't render any UI
+  };  
+
+  const App: React.FC = () => {
   const { t, i18n } = useTranslation();
+  const [username, setUsername] = useState<string | null>(null);
+  const pendoKey = import.meta.env.VITE_PENDO_KEY;
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const user = await Amplify.currentAuthenticatedUser();
+        setUsername(user.username);
+      } catch (error) {
+        console.error('Error fetching authenticated user', error);
+      }
+    };
+    fetchUser();
+  }, []);
+
+  // Dynamically add the Pendo script if needed
+  useEffect(() => {
+    if (!document.getElementById('pendo-script')) {
+      const script = document.createElement('script');
+      script.id = 'pendo-script';
+      script.src = `https://cdn.pendo.io/agent/static/${pendoKey}/pendo.js`;
+      script.async = true;
+      document.body.appendChild(script);
+    }
+  }, []);
 
   useEffect(() => {
     // set header title
@@ -55,6 +96,9 @@ const App: React.FC = () => {
 
   return (
     <ErrorBoundary fallback={<ErrorFallback />}>
+      {username && typeof window.pendo !== 'undefined' && (
+        <PendoInitializer username={username} />
+      )}
       {customProviderEnabled ? (
         <AuthCustom>
           <AppContent />
