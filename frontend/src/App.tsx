@@ -1,6 +1,7 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { translations } from '@aws-amplify/ui-react';
 import { Amplify } from 'aws-amplify';
+import { getCurrentUser } from 'aws-amplify/auth';
 import { I18n } from 'aws-amplify/utils';
 import '@aws-amplify/ui-react/styles.css';
 import AuthAmplify from './components/AuthAmplify';
@@ -45,8 +46,8 @@ const MISTRAL_ENABLED: boolean =
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const user = await Amplify.currentAuthenticatedUser();
-        setUsername(user.username);
+        const { username } = await getCurrentUser();
+        setUsername(username);
       } catch (error) {
         console.error('Error fetching authenticated user', error);
       }

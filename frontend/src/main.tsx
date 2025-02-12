@@ -8,6 +8,7 @@ import { router } from './routes';
 
 // Load the Pendo script using the key from an environment variable
 const pendoKey = import.meta.env.VITE_PENDO_KEY;
+console.log('PENDO_KEY', pendoKey) ;
 if (pendoKey) {
   (function(apiKey){
     (function(p,e,n,d,o){var v,w,x,y,z;o=p[d]=p[d]||{};o._q=o._q||[];
