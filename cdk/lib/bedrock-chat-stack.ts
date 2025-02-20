@@ -42,6 +42,7 @@ export interface BedrockChatStackProps extends StackProps {
   readonly enableLambdaSnapStart: boolean;
   readonly alternateDomainName?: string;
   readonly hostedZoneId?: string;
+  readonly pendoApiKey?: string;
 }
 
 export class BedrockChatStack extends cdk.Stack {
@@ -128,6 +129,7 @@ export class BedrockChatStack extends cdk.Stack {
       enableIpV6: props.enableIpV6,
       alternateDomainName: props.alternateDomainName,
       hostedZoneId: props.hostedZoneId,
+      pendoApiKey: props.pendoApiKey,
     });
 
     const auth = new Auth(this, "Auth", {
